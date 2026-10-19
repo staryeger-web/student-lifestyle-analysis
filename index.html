@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>대학생 라이프스타일과 학업 성과의 관계</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/dist/reset.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/dist/reveal.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/dist/theme/white.css">
+    <style>
+        .reveal {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+                'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+                sans-serif;
+        }
+        .reveal h1,
+        .reveal h2,
+        .reveal h3 {
+            font-weight: 600;
+            line-height: 1.2;
+            margin-bottom: 1em;
+        }
+        .reveal h1 {
+            font-size: 2.2em;
+        }
+        .reveal h2 {
+            font-size: 1.8em;
+        }
+        .reveal h3 {
+            font-size: 1.3em;
+        }
+        .reveal p {
+            font-size: 0.9em;
+            line-height: 1.6;
+            margin-bottom: 0.8em;
+        }
+        .reveal ul,
+        .reveal ol {
+            font-size: 0.85em;
+            line-height: 1.8;
+            display: inline-block;
+            text-align: left;
+            margin: 0 auto 1em;
+        }
+        .reveal li {
+            margin-bottom: 0.5em;
+        }
+        .reveal table {
+            font-size: 0.7em;
+            margin: 1em auto;
+        }
+        .reveal th,
+        .reveal td {
+            padding: 0.4em 0.6em;
+        }
+        .reveal img {
+            max-height: 60vh;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .reveal .fragment.highlight-red.visible {
+            color: #d62728;
+        }
+        .reveal .fragment.highlight-green.visible {
+            color: #2ca02c;
+        }
+        .reveal .two-columns {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 2em;
+        }
+        .reveal .two-columns > div {
+            flex: 1;
+        }
+        .small-text {
+            font-size: 0.75em !important;
+        }
+        .accent-text {
+            color: #1f77b4;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+            <!-- Slide 1: Title -->
+            <section>
+                <h1>대학생 라이프스타일과 학업 성과의 관계</h1>
+                <p style="margin-top: 2em; color: #666;">Student Lifestyle & Academic Performance Analysis</p>
+                <p style="margin-top: 1.5em; font-size: 0.8em; color: #888;">데이터 기반 EDA 분석</p>
+            </section>
+
+            <!-- Slide 2: Dataset Overview -->
+            <section>
+                <h2>데이터셋 개요</h2>
+                <ul>
+                    <li><strong>데이터 규모:</strong> 1,000명 학생 데이터</li>
+                    <li><strong>변수 개수:</strong> 16개 변수 (15+ 변수)</li>
+                    <li><strong>주요 변수:</strong>
+                        <ul style="font-size: 0.9em; margin-top: 0.5em;">
+                            <li>공부 시간 (<code>study_hours_per_day</code>)</li>
+                            <li>수면 시간 (<code>sleep_hours</code>)</li>
+                            <li>SNS 사용량 (<code>social_media_hours</code>)</li>
+                            <li>넷플릭스 시청 (<code>netflix_hours</code>)</li>
+                            <li>최종 시험 점수 (<code>exam_score</code>)</li>
+                        </ul>
+                    </li>
+                </ul>
+                <p class="small-text" style="margin-top: 1em; color: #666;">기타 변수: 나이, 성별, 출석률, 식습관, 운동빈도, 정신건강 등</p>
+            </section>
+
+            <!-- Slide 3: Key Analysis Results -->
+            <section>
+                <h2>핵심 분석 결과</h2>
+                <h3 style="font-size: 1.1em; margin-bottom: 0.8em;">1) 공부시간 vs 성적</h3>
+                <div class="two-columns">
+                    <div>
+                        <img src="plots/study_vs_score.png" alt="Study Hours vs Exam Score">
+                    </div>
+                    <div>
+                        <p class="small-text"><strong>상관계수:</strong> <span class="accent-text">r = 0.825</span></p>
+                        <p class="small-text">공부시간과 시험점수 간 <strong>강한 양의 상관관계</strong></p>
+                        <p class="small-text fragment fade-in">→ 공부시간 증가가 성적 향상과 밀접한 관련</p>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2>핵심 분석 결과</h2>
+                <h3 style="font-size: 1.1em; margin-bottom: 0.8em;">2) 수면시간 vs 성적</h3>
+                <div class="two-columns">
+                    <div>
+                        <img src="plots/sleep_vs_score.png" alt="Sleep Hours vs Exam Score">
+                    </div>
+                    <div>
+                        <p class="small-text"><strong>상관계수:</strong> <span class="accent-text">r = 0.122</span></p>
+                        <p class="small-text">수면시간과 성적 간 <strong>약한 양의 상관관계</strong></p>
+                        <p class="small-text fragment fade-in">→ 적절한 수면도 성적에 긍정적 영향</p>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2>핵심 분석 결과</h2>
+                <h3 style="font-size: 1.1em; margin-bottom: 0.8em;">3) SNS/넷플릭스 사용량이 성적에 미치는 영향</h3>
+                <div class="two-columns">
+                    <div>
+                        <img src="plots/sns_total_vs_score.png" alt="Total SNS vs Exam Score">
+                    </div>
+                    <div>
+                        <p class="small-text"><strong>SNS 총 사용량 vs 성적</strong></p>
+                        <p class="small-text"><strong>상관계수:</strong> <span class="fragment highlight-red">r = -0.167</span> (약한 음의 상관)</p>
+                        <p class="small-text" style="margin-top: 0.6em;"><strong>세부:</strong></p>
+                        <ul class="small-text" style="margin-left: 1em;">
+                            <li>Social Media: r = -0.167</li>
+                            <li>Netflix: r = -0.172</li>
+                        </ul>
+                        <p class="small-text fragment fade-in" style="margin-top: 0.6em;">→ 과도한 디지털 미디어 사용은 성적 저하 경향</p>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2>핵심 분석 결과 - 종합</h2>
+                <h3 style="font-size: 1.1em; margin-bottom: 0.8em;">상관관계 요약 (시험점수 기준)</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>변수</th>
+                            <th>상관계수 (r)</th>
+                            <th>해석</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>공부시간</strong></td>
+                            <td class="fragment highlight-green">+0.825</td>
+                            <td>강한 양의 상관</td>
+                        </tr>
+                        <tr>
+                            <td>수면시간</td>
+                            <td>+0.122</td>
+                            <td>약한 양의 상관</td>
+                        </tr>
+                        <tr>
+                            <td>SNS 사용량</td>
+                            <td class="fragment highlight-red">-0.167</td>
+                            <td>약한 음의 상관</td>
+                        </tr>
+                        <tr>
+                            <td>넷플릭스</td>
+                            <td class="fragment highlight-red">-0.172</td>
+                            <td>약한 음의 상관</td>
+                        </tr>
+                        <tr>
+                            <td>SNS 총합</td>
+                            <td class="fragment highlight-red">-0.167</td>
+                            <td>약한 음의 상관</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p class="small-text fragment fade-in" style="margin-top: 0.8em;">💡 <strong>주요 인사이트:</strong> 공부시간이 학업성과에 가장 큰 영향을 미침</p>
+            </section>
+
+            <!-- Slide 4: Conclusion & Recommendations -->
+            <section>
+                <h2>결론 및 제언</h2>
+                <h3 style="font-size: 1.2em; margin-bottom: 0.8em;">학업 성적 향상을 위한 라이프스타일 가이드</h3>
+                <ul>
+                    <li class="fragment fade-in"><strong class="accent-text">공부시간 확보 (최우선)</strong>
+                        <ul style="font-size: 0.9em; margin-top: 0.4em;">
+                            <li>규칙적인 학습 루틴 유지</li>
+                            <li>하루 3-5시간 집중 학습 권장</li>
+                        </ul>
+                    </li>
+                    <li class="fragment fade-in"><strong class="accent-text">충분한 수면</strong>
+                        <ul style="font-size: 0.9em; margin-top: 0.4em;">
+                            <li>수면의 질과 양 모두 중요 (7-8시간 권장)</li>
+                        </ul>
+                    </li>
+                    <li class="fragment fade-in"><strong class="accent-text">SNS/미디어 사용 시간 관리</strong>
+                        <ul style="font-size: 0.9em; margin-top: 0.4em;">
+                            <li>하루 총 미디어 사용량 제한</li>
+                            <li>공부시간과 대체하여 균형 있는 사용</li>
+                        </ul>
+                    </li>
+                </ul>
+            </section>
+
+            <section>
+                <h2>결론</h2>
+                <ul>
+                    <li class="fragment fade-in"><strong>가장 영향력 큰 요인:</strong> <span class="accent-text">공부시간</span> (강한 양의 상관, r=0.825)</li>
+                    <li class="fragment fade-in"><strong>긍정적 요인:</strong> 적절한 수면 (약한 양의 상관)</li>
+                    <li class="fragment fade-in"><strong>부정적 경향:</strong> SNS/넷플릭스 과다 사용 (약한 음의 상관)</li>
+                    <li class="fragment fade-in" style="margin-top: 1em;"><strong>핵심 제언:</strong> 학습시간 우선 확보 + 스마트폰/미디어 사용 시간 조절 + 규칙적 수면 패턴 유지</li>
+                </ul>
+                <p class="fragment fade-in" style="margin-top: 2em; font-size: 0.8em; color: #666;">- 끝 -</p>
+            </section>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/dist/reveal.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            slideNumber: true,
+            controls: true,
+            progress: true,
+            center: true,
+            transition: 'slide',
+            transitionSpeed: 'default'
+        });
+    </script>
+</body>
+</html>
