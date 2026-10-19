@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>대학생 라이프스타일 · 학업 성과 대시보드</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --bg: #0f1026;
+            --panel: #16182a;
+            --panel-sub: #1f233a;
+            --text: #f3f4fb;
+            --subtext: #b9bed4;
+            --accent: #4f9deb;
+            --accent-2: #3fb984;
+            --accent-3: #ff7a5c;
+            --positive: #22d3ee;
+            --negative: #f87171;
+            --grid: rgba(151, 159, 200, 0.25);
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        body {
+            background: radial-gradient(1200px 800px at 50% -10%, rgba(79, 157, 235, 0.15), transparent),
+                        radial-gradient(800px 600px at 90% 10%, rgba(63, 185, 132, 0.12), transparent),
+                        var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            padding: 24px clamp(16px, 2.5vw, 32px);
+        }
+        header {
+            margin-bottom: 24px;
+        }
+        header h1 {
+            font-size: clamp(20px, 2.2vw, 28px);
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+        header p {
+            margin-top: 6px;
+            color: var(--subtext);
+            font-size: clamp(13px, 0.9vw, 14px);
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(6, minmax(0, 1fr));
+            gap: clamp(12px, 1.5vw, 16px);
+            margin-bottom: clamp(18px, 2vw, 24px);
+        }
+        .card {
+            background: linear-gradient(160deg, rgba(79, 157, 235, 0.28) 0%, rgba(22, 24, 42, 1) 70%);
+            border: 1px solid rgba(79, 157, 235, 0.55);
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(8, 10, 28, 0.45);
+            padding: clamp(14px, 1.6vw, 18px);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .card.positive {
+            background: linear-gradient(160deg, rgba(63, 185, 132, 0.28) 0%, rgba(22, 24, 42, 1) 70%);
+            border-color: rgba(63, 185, 132, 0.55);
+        }
+        .card.warning {
+            background: linear-gradient(160deg, rgba(255, 122, 92, 0.28) 0%, rgba(22, 24, 42, 1) 70%);
+            border-color: rgba(255, 122, 92, 0.55);
+        }
+        .card.neutral {
+            background: linear-gradient(160deg, rgba(34, 211, 238, 0.24) 0%, rgba(22, 24, 42, 1) 70%);
+            border-color: rgba(34, 211, 238, 0.55);
+        }
+        .card-label {
+            color: var(--subtext);
+            font-size: clamp(11px, 0.8vw, 12px);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+        .card-value {
+            font-size: clamp(28px, 4vw, 42px);
+            font-weight: 700;
+        }
+        .card-sub {
+            color: var(--subtext);
+            font-size: clamp(11px, 0.9vw, 12px);
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(12, minmax(0, 1fr));
+            gap: clamp(12px, 1.5vw, 16px);
+            margin-bottom: clamp(18px, 2vw, 24px);
+        }
+        .panel {
+            grid-column: span 6;
+            background: linear-gradient(180deg, rgba(37, 40, 68, 0.9) 0%, var(--panel) 100%);
+            border: 1px solid var(--grid);
+            border-radius: 16px;
+            box-shadow: 0 30px 70px rgba(8, 10, 28, 0.45);
+            display: flex;
+            flex-direction: column;
+        }
+        .panel.wide {
+            grid-column: span 12;
+        }
+        .panel.span-4 {
+            grid-column: span 4;
+        }
+        .panel.span-8 {
+            grid-column: span 8;
+        }
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            padding: clamp(14px, 1.6vw, 20px) clamp(14px, 2vw, 24px) 0;
+        }
+        .panel-header h2 {
+            font-size: clamp(15px, 1vw, 17px);
+            font-weight: 600;
+        }
+        .panel-header p {
+            margin-top: 4px;
+            color: var(--subtext);
+            font-size: clamp(11px, 0.9vw, 12px);
+        }
+        .panel-body {
+            padding: clamp(12px, 1.6vw, 20px) clamp(14px, 2vw, 24px) clamp(16px, 2vw, 24px);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .chart-frame {
+            position: relative;
+            width: 100%;
+            height: clamp(240px, 32vw, 320px);
+        }
+        .chart-frame.tall {
+            height: clamp(280px, 34vw, 340px);
+        }
+        .chart-frame.short {
+            height: clamp(200px, 24vw, 240px);
+        }
+        .metric-list {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: clamp(12px, 1.2vw, 16px);
+        }
+        .metric {
+            background: var(--panel-sub);
+            border: 1px solid var(--grid);
+            border-radius: 12px;
+            padding: clamp(10px, 1.2vw, 14px);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .metric-label {
+            color: var(--subtext);
+            font-size: clamp(11px, 0.8vw, 12px);
+        }
+        .metric-value {
+            font-size: clamp(20px, 2vw, 26px);
+            font-weight: 600;
+        }
+        .metric-footnote {
+            color: var(--subtext);
+            font-size: clamp(10px, 0.8vw, 11px);
+        }
+        .table-wrap {
+            width: 100%;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 560px;
+            font-size: clamp(11px, 0.8vw, 12px);
+        }
+        thead th {
+            text-align: left;
+            color: var(--subtext);
+            font-weight: 500;
+            padding: 8px 10px;
+            border-bottom: 1px solid var(--grid);
+            white-space: nowrap;
+        }
+        tbody td {
+            padding: 10px;
+            border-bottom: 1px solid rgba(151, 159, 200, 0.18);
+            vertical-align: top;
+        }
+        tbody tr:hover {
+            background: rgba(79, 157, 235, 0.16);
+        }
+        tbody td.num {
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+        }
+        footer {
+            margin-top: 16px;
+            color: var(--subtext);
+            font-size: clamp(10px, 0.8vw, 11px);
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            border: 1px solid var(--grid);
+            color: var(--subtext);
+            font-size: clamp(10px, 0.8vw, 11px);
+        }
+        .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent-2);
+        }
+        @media (max-width: 1200px) {
+            .summary-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+            .panel,
+            .panel.span-4,
+            .panel.span-8 {
+                grid-column: span 12;
+            }
+        }
+        @media (max-width: 720px) {
+            .summary-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+            .metric-list {
+                grid-template-columns: 1fr;
+            }
+        }
+        @media (max-width: 520px) {
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>대학생 라이프스타일과 학업 성과 대시보드</h1>
+        <p>데이터셋: 1,000명 대학생 생활 습관 분석 / 주요 지표: 공부·수면·미디어 사용량과 최종 시험 점수</p>
+    </header>
+    <section class="summary-grid">
+        <article class="card">
+            <span class="card-label">전체 학생 수</span>
+            <span class="card-value">1,000</span>
+            <span class="card-sub">기록된 응답 100%</span>
+        </article>
+        <article class="card positive">
+            <span class="card-label">평균 시험 점수</span>
+            <span class="card-value">69.6</span>
+            <span class="card-sub">중앙값 70.5</span>
+        </article>
+        <article class="card">
+            <span class="card-label">공부시간(평균)</span>
+            <span class="card-value">3.55h</span>
+            <span class="card-sub">최대 8.3h</span>
+        </article>
+        <article class="card neutral">
+            <span class="card-label">수면시간(평균)</span>
+            <span class="card-value">6.47h</span>
+            <span class="card-sub">권장 7~8h 대비 부족 경향</span>
+        </article>
+        <article class="card warning">
+            <span class="card-label">SNS+넷플릭스(평균)</span>
+            <span class="card-value">4.33h</span>
+            <span class="card-sub">절반 이상 4h 초과(56.4%)</span>
+        </article>
+        <article class="card neutral">
+            <span class="card-label">출석률(평균)</span>
+            <span class="card-value">84.1%</span>
+            <span class="card-sub">32.4%는 80% 미만</span>
+        </article>
+    </section>
+    <main class="grid">
+        <section class="panel wide">
+            <div class="panel-header">
+                <div>
+                    <h2>변수 간 상관관계 히트맵</h2>
+                    <p>시험 점수와의 관계를 중심으로 주요 변수 상관도</p>
+                </div>
+                <span class="pill"><span class="dot"></span>r 값</span>
+            </div>
+            <div class="panel-body">
+                <div class="chart-frame tall">
+                    <img src="plots/corr_heatmap.png" alt="상관관계 히트맵" style="width:100%; height:100%; object-fit:contain; border-radius:12px;">
+                </div>
+            </div>
+        </section>
+        <section class="panel span-6">
+            <div class="panel-header">
+                <div>
+                    <h2>공부시간 4분위별 평균 시험 점수</h2>
+                    <p>공부시간 증가는 점수 상승과 밀접</p>
+                </div>
+                <span class="pill"><span class="dot"></span>4분위</span>
+            </div>
+            <div class="panel-body">
+                <div class="chart-frame">
+                    <img src="plots/study_quartile_bar.png" alt="공부시간 분위별 평균" style="width:100%; height:100%; object-fit:contain; border-radius:12px;">
+                </div>
+                <div class="metric-list">
+                    <div class="metric">
+                        <span class="metric-label">상위 25%(≥4.5h)</span>
+                        <span class="metric-value">87.6점</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">하위 25%(≤2.6h)</span>
+                        <span class="metric-value">52.3점</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">최소 차이</span>
+                        <span class="metric-value">+35.3p</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">공부시간 vs 성적 r²</span>
+                        <span class="metric-value">0.681</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="panel span-6">
+            <div class="panel-header">
+                <div>
+                    <h2>수면 시간 구간별 평균 시험 점수</h2>
+                    <p>7~8시간 확보 시 성적 상향 경향</p>
+                </div>
+                <span class="pill"><span class="dot"></span>시간 구간</span>
+            </div>
+            <div class="panel-body">
+                <div class="chart-frame">
+                    <img src="plots/sleep_bucket_bar.png" alt="수면 구간별 평균" style="width:100%; height:100%; object-fit:contain; border-radius:12px;">
+                </div>
+                <div class="metric-list">
+                    <div class="metric">
+                        <span class="metric-label">수면 7~8시간</span>
+                        <span class="metric-value">72.4점</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">수면 &lt; 6시간</span>
+                        <span class="metric-value">67.6점</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">차이</span>
+                        <span class="metric-value">+4.9p</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">수면시간 vs 성적 r</span>
+                        <span class="metric-value">+0.122</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="panel span-6">
+            <div class="panel-header">
+                <div>
+                    <h2>SNS+넷플릭스 시간별 평균 시험 점수</h2>
+                    <p>미디어 사용량이 많을수록 평균 점수 하락</p>
+                </div>
+                <span class="pill"><span class="dot"></span>시간/일</span>
+            </div>
+            <div class="panel-body">
+                <div class="chart-frame">
+                    <img src="plots/media_bucket_bar.png" alt="미디어 시간별 평균" style="width:100%; height:100%; object-fit:contain; border-radius:12px;">
+                </div>
+                <div class="metric-list">
+                    <div class="metric">
+                        <span class="metric-label">&lt; 3시간</span>
+                        <span class="metric-value">76.5점</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">≥ 5시간</span>
+                        <span class="metric-value">65.5점</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">차이</span>
+                        <span class="metric-value">-11.0p</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">미디어 총합 vs 성적 r</span>
+                        <span class="metric-value">-0.167</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="panel span-6">
+            <div class="panel-header">
+                <div>
+                    <h2>시험 점수 분포</h2>
+                    <p>평균 69.6점, 정규분포와 유사</p>
+                </div>
+                <span class="pill"><span class="dot"></span>점수 히스토그램</span>
+            </div>
+            <div class="panel-body">
+                <div class="chart-frame">
+                    <img src="plots/exam_dist.png" alt="시험 점수 분포" style="width:100%; height:100%; object-fit:contain; border-radius:12px;">
+                </div>
+                <div class="metric-list">
+                    <div class="metric">
+                        <span class="metric-label">평균/중앙값</span>
+                        <span class="metric-value">69.6 / 70.5</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">최솟값/최댓값</span>
+                        <span class="metric-value">18.4 / 100.0</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">60점 미만 비중</span>
+                        <span class="metric-value">28.0%</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">공부시간 &lt; 3h 비중</span>
+                        <span class="metric-value">33.4%</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="panel span-4">
+            <div class="panel-header">
+                <div>
+                    <h2>시험 점수와 주요 변수 상관계수</h2>
+                    <p>강한 순으로 정렬</p>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="chart-frame short">
+                    <img src="plots/corr_bar.png" alt="상관계수 바" style="width:100%; height:100%; object-fit:contain; border-radius:12px;">
+                </div>
+                <div class="metric-list">
+                    <div class="metric">
+                        <span class="metric-label">공부시간</span>
+                        <span class="metric-value">+0.825</span>
+                        <span class="metric-footnote">가장 강한 양의 상관</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">정신건강</span>
+                        <span class="metric-value">+0.322</span>
+                        <span class="metric-footnote">중간 수준의 양의 상관</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">SNS</span>
+                        <span class="metric-value">-0.167</span>
+                        <span class="metric-footnote">약한 음의 상관</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">넷플릭스</span>
+                        <span class="metric-value">-0.172</span>
+                        <span class="metric-footnote">약한 음의 상관</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="panel span-8">
+            <div class="panel-header">
+                <div>
+                    <h2>집중 분석: 공부량 대비 성적 차이</h2>
+                    <p>미디어 사용량을 일정하게 볼 때도 공부시간이 성적에 가장 큰 영향</p>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="metric-list">
+                    <div class="metric">
+                        <span class="metric-label">공부 ≥ 5h vs &lt; 2h</span>
+                        <span class="metric-value">87.6 → 52.3 (+35.3p)</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">미디어 ≥ 5h vs &lt; 3h</span>
+                        <span class="metric-value">65.5 → 76.5 (-11.0p)</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">수면 &lt; 6h vs 7~8h</span>
+                        <span class="metric-value">67.6 → 72.4 (+4.9p)</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">다중회귀 R²(공부·수면·SNS·넷플릭스·출석)</span>
+                        <span class="metric-value">0.763</span>
+                    </div>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>구분</th>
+                                <th>범주</th>
+                                <th class="num">빈도</th>
+                                <th class="num">평균 점수</th>
+                                <th class="num">최소</th>
+                                <th class="num">최대</th>
+                                <th>비고</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>공부시간 4분위</td>
+                                <td>≤2.6h / 2.6~3.5h / 3.5~4.5h / ≥4.5h</td>
+                                <td class="num">272/237/248/243</td>
+                                <td class="num">52.3 / 66.1 / 74.4 / 87.6</td>
+                                <td class="num">18.4 / 36.9 / 53.0 / 60.1</td>
+                                <td class="num">80.3 / 98.7 / 100 / 100</td>
+                                <td>공부량↑ → 성적↑ 뚜렷</td>
+                            </tr>
+                            <tr>
+                                <td>수면시간</td>
+                                <td>~5 / 5~6 / 6~7 / 7~8 / 8+</td>
+                                <td class="num">127/241/319/210/103</td>
+                                <td class="num">65.0 / 69.0 / 69.4 / 72.4 / 72.0</td>
+                                <td class="num">32.1 / 18.4 / 31.0 / 29.7 / 31.8</td>
+                                <td class="num">100 / 100 / 100 / 100 / 100</td>
+                                <td>7~8시간에서 최고 평균</td>
+                            </tr>
+                            <tr>
+                                <td>SNS+넷플릭스</td>
+                                <td>~2 / 2~3 / 3~4 / 4~5 / 5+</td>
+                                <td class="num">90/120/226/240/324</td>
+                                <td class="num">76.5 / 77.0 / 70.7 / 68.1 / 65.5</td>
+                                <td class="num">29.7 / 42.8 / 18.4 / 31.0 / 32.1</td>
+                                <td class="num">100 / 100 / 100 / 100 / 100</td>
+                                <td>사용량↑ → 평균↓</td>
+                            </tr>
+                            <tr>
+                                <td>출석률</td>
+                                <td>&lt;80% / ≥80%</td>
+                                <td class="num">324 / 676</td>
+                                <td class="num">67.0 / 70.8</td>
+                                <td class="num">18.4 / 28.7</td>
+                                <td class="num">100 / 100</td>
+                                <td>출석 양호 집단 +3.8p</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <span>출처: student_habits_performance.csv / 분석 도구: pandas, numpy, matplotlib, seaborn</span>
+        <span>대학생 라이프스타일과 학업 성과 대시보드 · 데모용 리포트</span>
+    </footer>
+</body>
+</html>
